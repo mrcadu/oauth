@@ -1,0 +1,5 @@
+{
+  "Not Found": "Entity with identifier {{.Name}} was not found",
+  "Invalid Hex": "Invalid Hex {{.Hex}}",
+  "Bad Request": "Bad Request"
+}
