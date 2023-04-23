@@ -1,5 +1,6 @@
 {
   "Not Found": "Entidade com identificador {{.Name}} não foi encontrada",
   "Invalid Hex": "Hex inválido {{.Hex}}",
-  "Bad Request": "Requisição mal formatada"
+  "Bad Request": "Requisição mal formatada",
+  "Duplicated Key": "Entidade com chave {{.key}} já existente"
 }
