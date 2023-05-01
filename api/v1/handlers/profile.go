@@ -26,6 +26,9 @@ func CreateProfile(ctx *gin.Context) {
 func UpdateProfile(ctx *gin.Context) {
 	var profile model.Profile
 	err := ctx.ShouldBind(&profile)
+	id := ctx.Param("id")
+	hex, err := primitive.ObjectIDFromHex(id)
+	profile.ID = hex
 	if err != nil {
 		panic(err)
 	}
