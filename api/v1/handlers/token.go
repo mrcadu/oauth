@@ -14,13 +14,11 @@ func CreateToken(context *gin.Context) {
 	var user model.User
 	err := context.ShouldBind(&user)
 	if err != nil {
-		context.JSON(http.StatusBadRequest, err)
-		return
+		panic(err)
 	}
-	recoveredUser, err := userRepository.GetUser(user.Username)
+	recoveredUser, err := userRepository.GetUser(user.ID)
 	if err != nil {
-		context.JSON(err.(http_error.HttpError).Status, err)
-		return
+		panic(err)
 	}
 	isPasswordCorrect := password_encription.CheckPasswordHash(user.Password, recoveredUser.Password)
 	if !isPasswordCorrect {

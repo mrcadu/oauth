@@ -21,9 +21,9 @@ func CreateRouter() *gin.Engine {
 		userRoutes := v1Routes.Group("/user")
 		{
 			userRoutes.POST("", handlers.CreateUser)
-			userRoutes.DELETE("", handlers.DeleteUser)
-			userRoutes.PUT("", handlers.UpdateUser)
-			userRoutes.GET("", handlers.GetUser)
+			userRoutes.DELETE("/:id", handlers.DeleteUser)
+			userRoutes.PUT("/:id", handlers.UpdateUser)
+			userRoutes.GET("/:id", handlers.GetUser)
 		}
 		tokenRoutes := v1Routes.Group("/token")
 		{
@@ -33,7 +33,7 @@ func CreateRouter() *gin.Engine {
 		profileRoutes := v1Routes.Group("/profile")
 		{
 			profileRoutes.POST("", handlers.CreateProfile)
-			profileRoutes.PUT("", handlers.UpdateProfile)
+			profileRoutes.PUT("/:id", handlers.UpdateProfile)
 			profileRoutes.GET("/:id", handlers.GetProfile)
 			profileRoutes.DELETE("/:id", handlers.DeleteProfile)
 		}
