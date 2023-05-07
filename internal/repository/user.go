@@ -36,7 +36,7 @@ func (u UserRepositoryMongo) GetUser(id primitive.ObjectID) (model.User, error) 
 }
 
 func (u UserRepositoryMongo) DeleteUser(id primitive.ObjectID) (primitive.ObjectID, error) {
-	deleteResult, err := u.getCollection().DeleteOne(context.TODO(), id)
+	deleteResult, err := u.getCollection().DeleteOne(context.TODO(), bson.D{{"_id", id}})
 	if deleteResult != nil && deleteResult.DeletedCount == 0 {
 		return id, mongo.ErrNoDocuments
 	}

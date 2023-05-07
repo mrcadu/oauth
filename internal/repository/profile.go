@@ -34,7 +34,7 @@ func (p ProfileRepositoryMongo) UpdateProfile(profile model.Profile) (model.Prof
 	return profile, err
 }
 func (p ProfileRepositoryMongo) DeleteProfile(id primitive.ObjectID) (primitive.ObjectID, error) {
-	deleteResult, err := p.getCollection().DeleteOne(context.TODO(), id)
+	deleteResult, err := p.getCollection().DeleteOne(context.TODO(), bson.D{{"_id", id}})
 	if deleteResult != nil && deleteResult.DeletedCount == 0 {
 		return id, mongo.ErrNoDocuments
 	}
