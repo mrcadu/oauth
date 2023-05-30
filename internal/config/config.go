@@ -1,15 +1,15 @@
 package config
 
 import (
-	"fmt"
-	"github.com/joho/godotenv"
-	"os"
+	"oauth/internal/config/env"
 )
 
+var SysEnv env.Env = env.SystemEnv{}
+
 func GetProperty(key string) string {
-	err := godotenv.Load(".env")
+	err := SysEnv.LoadEnv(".env")
 	if err != nil {
-		fmt.Print("Error loading .env file")
+		panic("Error loading .env file")
 	}
-	return os.Getenv(key)
+	return SysEnv.GetEnv(key)
 }
