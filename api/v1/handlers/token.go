@@ -16,7 +16,7 @@ func CreateToken(context *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
-	recoveredUser, err := userRepository.GetUser(user.ID)
+	recoveredUser, err := userRepository.Get(user.ID)
 	if err != nil {
 		panic(err)
 	}

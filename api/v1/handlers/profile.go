@@ -8,7 +8,7 @@ import (
 	"oauth/internal/repository"
 )
 
-var profileRepository = repository.ProfileRepositoryMongo{}
+var profileRepository = repository.NewProfileRepository()
 
 func CreateProfile(ctx *gin.Context) {
 	var profile model.Profile
@@ -16,7 +16,7 @@ func CreateProfile(ctx *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
-	createdProfile, err := profileRepository.CreateProfile(profile)
+	createdProfile, err := profileRepository.Create(profile)
 	if err != nil {
 		panic(err)
 	}
@@ -32,7 +32,7 @@ func UpdateProfile(ctx *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
-	updatedProfile, err := profileRepository.UpdateProfile(profile)
+	updatedProfile, err := profileRepository.Update(profile)
 	if err != nil {
 		panic(err)
 	}
@@ -45,7 +45,7 @@ func GetProfile(ctx *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
-	profile, err := profileRepository.GetProfile(hex)
+	profile, err := profileRepository.Get(hex)
 	if err != nil {
 		panic(err)
 	}
@@ -58,7 +58,7 @@ func DeleteProfile(ctx *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
-	_, err = profileRepository.DeleteProfile(hex)
+	_, err = profileRepository.Delete(hex)
 	if err != nil {
 		panic(err)
 	}

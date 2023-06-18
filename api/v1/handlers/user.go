@@ -9,7 +9,7 @@ import (
 	"oauth/internal/repository"
 )
 
-var userRepository = repository.UserRepositoryMongo{}
+var userRepository = repository.NewUserRepository()
 
 func CreateUser(context *gin.Context) {
 	var user model.User
@@ -17,7 +17,7 @@ func CreateUser(context *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
-	createdUser, err := userRepository.CreateUser(user)
+	createdUser, err := userRepository.Create(user)
 	if err != nil {
 		panic(err)
 	}
@@ -30,7 +30,7 @@ func DeleteUser(context *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
-	deletedUser, err := userRepository.DeleteUser(hex)
+	deletedUser, err := userRepository.Delete(hex)
 	if err != nil {
 		panic(err)
 	}
@@ -46,7 +46,7 @@ func UpdateUser(context *gin.Context) {
 		panic(err)
 	}
 	user.ID = hex
-	updatedUser, err := userRepository.UpdateUser(user)
+	updatedUser, err := userRepository.Update(user)
 	if err != nil {
 		panic(err)
 	}
@@ -60,7 +60,7 @@ func GetUser(context *gin.Context) {
 		context.JSON(401, http_error.Unauthorized("user", ""))
 		return
 	}
-	user, err := userRepository.GetUser(hex)
+	user, err := userRepository.Get(hex)
 	if err != nil {
 		context.JSON(err.(http_error.HttpError).Status, err)
 	} else {

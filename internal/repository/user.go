@@ -10,16 +10,17 @@ import (
 )
 
 type UserRepositoryMongo struct {
+	datasource model.DataSource[*mongo.Client]
 }
 
-func (u UserRepositoryMongo) CreateUser(user model.User) (model.User, error) {
+func (u UserRepositoryMongo) Create(user model.User) (model.User, error) {
 	user.Password, _ = password_encription.HashPassword(user.Password)
 	user.ID = primitive.NewObjectID()
 	_, err := u.getCollection().InsertOne(context.TODO(), user)
 	return user, err
 }
 
-func (u UserRepositoryMongo) UpdateUser(user model.User) (model.User, error) {
+func (u UserRepositoryMongo) Update(user model.User) (model.User, error) {
 	password, err := password_encription.HashPassword(user.Password)
 	user.Password = password
 	updateResult, err := u.getCollection().ReplaceOne(context.TODO(), bson.D{{"_id", user.ID}}, user)
@@ -29,13 +30,13 @@ func (u UserRepositoryMongo) UpdateUser(user model.User) (model.User, error) {
 	return user, err
 }
 
-func (u UserRepositoryMongo) GetUser(id primitive.ObjectID) (model.User, error) {
+func (u UserRepositoryMongo) Get(id primitive.ObjectID) (model.User, error) {
 	var user model.User
 	err := u.getCollection().FindOne(context.TODO(), bson.D{{"_id", id}}).Decode(&user)
 	return user, err
 }
 
-func (u UserRepositoryMongo) DeleteUser(id primitive.ObjectID) (primitive.ObjectID, error) {
+func (u UserRepositoryMongo) Delete(id primitive.ObjectID) (primitive.ObjectID, error) {
 	deleteResult, err := u.getCollection().DeleteOne(context.TODO(), bson.D{{"_id", id}})
 	if deleteResult != nil && deleteResult.DeletedCount == 0 {
 		return id, mongo.ErrNoDocuments
@@ -44,5 +45,11 @@ func (u UserRepositoryMongo) DeleteUser(id primitive.ObjectID) (primitive.Object
 }
 
 func (u UserRepositoryMongo) getCollection() *mongo.Collection {
-	return model.DB.Database("auth").Collection("User")
+	return u.datasource.GetClient().Database("auth").Collection("User")
+}
+
+func NewUserRepository() UserRepositoryMongo {
+	return UserRepositoryMongo{
+		datasource: model.MongoDatasource{},
+	}
 }
