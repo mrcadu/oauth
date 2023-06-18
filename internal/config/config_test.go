@@ -50,5 +50,5 @@ func TestGetPropertyWithInvalidEnvFileAndValidPropertyShouldReturnProperty(t *te
 	mockEnv.On("GetEnv", "key").Return("")
 	SysEnv = &mockEnv
 
-	assert.Panics(t, func() { GetProperty("key") }, errorMessage)
+	assert.Equal(t, GetProperty("key"), "")
 }
