@@ -2,12 +2,12 @@ package main
 
 import (
 	"oauth/api/v1/router"
-	"oauth/internal/model"
+	"oauth/internal/model/datasource"
 	"oauth/locale"
 )
 
 func main() {
 	locale.Setup()
-	model.ConnectDatabase()
+	datasource.Setup()
 	router.CreateRouter()
 }
