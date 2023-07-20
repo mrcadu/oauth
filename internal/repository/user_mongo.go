@@ -7,33 +7,44 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"oauth/internal/model"
 	"oauth/internal/model/datasource"
-	"oauth/internal/service/password_encription"
+	"oauth/internal/utils"
 )
 
 type UserRepositoryMongo struct {
-	datasource datasource.MongoDatasource
+	datasource                datasource.MongoDatasource
+	passwordEncryptionService utils.PasswordEncryption
+	profileRepositoryMongo    ProfileRepositoryMongo
 }
 
 func (u UserRepositoryMongo) Create(user model.User) (model.User, error) {
-	user.Password, _ = password_encription.HashPassword(user.Password)
+	user.Password, _ = u.passwordEncryptionService.HashPassword(user.Password)
 	user.ID = primitive.NewObjectID()
 	_, err := u.getCollection().InsertOne(context.TODO(), user)
+	user.Password = ""
 	return user, err
 }
 
 func (u UserRepositoryMongo) Update(user model.User) (model.User, error) {
-	password, err := password_encription.HashPassword(user.Password)
+	password, err := u.passwordEncryptionService.HashPassword(user.Password)
 	user.Password = password
 	updateResult, err := u.getCollection().ReplaceOne(context.TODO(), bson.D{{"_id", user.ID}}, user)
 	if updateResult != nil && updateResult.ModifiedCount == 0 {
 		return user, mongo.ErrNoDocuments
 	}
+	user.Password = ""
 	return user, err
 }
 
 func (u UserRepositoryMongo) Get(id primitive.ObjectID) (model.User, error) {
 	var user model.User
 	err := u.getCollection().FindOne(context.TODO(), bson.D{{"_id", id}}).Decode(&user)
+	user.Password = ""
+	return user, err
+}
+
+func (u UserRepositoryMongo) GetByUsername(username string) (model.User, error) {
+	var user model.User
+	err := u.getCollection().FindOne(context.TODO(), bson.D{{"username", username}}).Decode(&user)
 	return user, err
 }
 
@@ -51,6 +62,8 @@ func (u UserRepositoryMongo) getCollection() *mongo.Collection {
 
 func NewUserRepository() UserRepositoryMongo {
 	return UserRepositoryMongo{
-		datasource: datasource.GetMongoDatasource(),
+		datasource:                datasource.GetMongoDatasource(),
+		passwordEncryptionService: utils.PasswordEncryptionImpl{},
+		profileRepositoryMongo:    NewProfileRepository(),
 	}
 }

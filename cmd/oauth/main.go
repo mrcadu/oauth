@@ -9,5 +9,5 @@ import (
 func main() {
 	locale.Setup()
 	datasource.Setup()
-	router.CreateRouter()
+	router.NewGin().CreateRouter()
 }

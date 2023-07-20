@@ -13,29 +13,41 @@ import (
 	"oauth/locale"
 )
 
-func CreateRouter() *gin.Engine {
+type Gin interface {
+	CreateRouter() *gin.Engine
+	ErrorHandler(c *gin.Context, err any)
+}
+
+type GinImpl struct {
+	userHandler    handlers.UserHandler
+	profileHandler handlers.ProfileHandler
+	tokenHandler   handlers.TokenHandler
+}
+
+func (r GinImpl) CreateRouter() *gin.Engine {
 	router := gin.Default()
-	router.Use(gin.CustomRecovery(ErrorHandler))
+	router.Use(gin.CustomRecovery(r.ErrorHandler))
 	v1Routes := router.Group("/api/v1")
 	{
 		userRoutes := v1Routes.Group("/user")
 		{
-			userRoutes.POST("", handlers.CreateUser)
-			userRoutes.DELETE("/:id", handlers.DeleteUser)
-			userRoutes.PUT("/:id", handlers.UpdateUser)
-			userRoutes.GET("/:id", handlers.GetUser)
+			userRoutes.POST("", r.userHandler.CreateUser)
+			userRoutes.DELETE("/:id", r.userHandler.DeleteUser)
+			userRoutes.PUT("/:id", r.userHandler.UpdateUser)
+			userRoutes.GET("/:id", r.userHandler.GetUser)
 		}
 		tokenRoutes := v1Routes.Group("/token")
 		{
-			tokenRoutes.POST("", handlers.CreateToken)
-			tokenRoutes.GET("", handlers.GetToken)
+			tokenRoutes.POST("", r.tokenHandler.CreateToken)
+			tokenRoutes.GET("", r.tokenHandler.GetToken)
 		}
 		profileRoutes := v1Routes.Group("/profile")
 		{
-			profileRoutes.POST("", handlers.CreateProfile)
-			profileRoutes.PUT("/:id", handlers.UpdateProfile)
-			profileRoutes.GET("/:id", handlers.GetProfile)
-			profileRoutes.DELETE("/:id", handlers.DeleteProfile)
+			profileRoutes.POST("", r.profileHandler.CreateProfile)
+			profileRoutes.PUT("/:id", r.profileHandler.UpdateProfile)
+			profileRoutes.GET("/:id", r.profileHandler.GetProfile)
+			profileRoutes.GET("/name/:name", r.profileHandler.GetProfileByName)
+			profileRoutes.DELETE("/:id", r.profileHandler.DeleteProfile)
 		}
 	}
 	err := router.Run("localhost:" + config.GetProperty("SERVER_PORT"))
@@ -45,7 +57,7 @@ func CreateRouter() *gin.Engine {
 	return router
 }
 
-func ErrorHandler(c *gin.Context, err any) {
+func (r GinImpl) ErrorHandler(c *gin.Context, err any) {
 	switch err.(type) {
 	case validator.ValidationErrors:
 		errorsAmount := len(err.(validator.ValidationErrors))
@@ -87,5 +99,12 @@ func ErrorHandler(c *gin.Context, err any) {
 		}
 	default:
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err.(error).Error()})
+	}
+}
+func NewGin() GinImpl {
+	return GinImpl{
+		userHandler:    handlers.NewUserHandler(),
+		profileHandler: handlers.NewProfileHandler(),
+		tokenHandler:   handlers.NewTokenHandler(),
 	}
 }

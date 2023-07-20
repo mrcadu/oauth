@@ -8,22 +8,31 @@ import (
 	"oauth/internal/repository"
 )
 
-var profileRepository = repository.NewProfileRepository()
+type ProfileHandler interface {
+	CreateProfile(ctx *gin.Context)
+	UpdateProfile(ctx *gin.Context)
+	GetProfile(ctx *gin.Context)
+	DeleteProfile(ctx *gin.Context)
+	GetProfileByName(ctx *gin.Context)
+}
+type ProfileHandlerImpl struct {
+	profileRepository repository.ProfileRepository
+}
 
-func CreateProfile(ctx *gin.Context) {
+func (p ProfileHandlerImpl) CreateProfile(ctx *gin.Context) {
 	var profile model.Profile
 	err := ctx.ShouldBind(&profile)
 	if err != nil {
 		panic(err)
 	}
-	createdProfile, err := profileRepository.Create(profile)
+	createdProfile, err := p.profileRepository.Create(profile)
 	if err != nil {
 		panic(err)
 	}
 	ctx.JSON(http.StatusCreated, createdProfile)
 }
 
-func UpdateProfile(ctx *gin.Context) {
+func (p ProfileHandlerImpl) UpdateProfile(ctx *gin.Context) {
 	var profile model.Profile
 	err := ctx.ShouldBind(&profile)
 	id := ctx.Param("id")
@@ -32,35 +41,49 @@ func UpdateProfile(ctx *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
-	updatedProfile, err := profileRepository.Update(profile)
+	updatedProfile, err := p.profileRepository.Update(profile)
 	if err != nil {
 		panic(err)
 	}
 	ctx.JSON(http.StatusOK, updatedProfile)
 }
 
-func GetProfile(ctx *gin.Context) {
+func (p ProfileHandlerImpl) GetProfile(ctx *gin.Context) {
 	id := ctx.Param("id")
 	hex, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		panic(err)
 	}
-	profile, err := profileRepository.Get(hex)
+	profile, err := p.profileRepository.Get(hex)
 	if err != nil {
 		panic(err)
 	}
 	ctx.JSON(http.StatusOK, profile)
 }
 
-func DeleteProfile(ctx *gin.Context) {
+func (p ProfileHandlerImpl) GetProfileByName(ctx *gin.Context) {
+	name := ctx.Param("name")
+	profile, err := p.profileRepository.GetProfileByName(name)
+	if err != nil {
+		panic(err)
+	}
+	ctx.JSON(http.StatusOK, profile)
+}
+
+func (p ProfileHandlerImpl) DeleteProfile(ctx *gin.Context) {
 	id := ctx.Param("id")
 	hex, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		panic(err)
 	}
-	_, err = profileRepository.Delete(hex)
+	_, err = p.profileRepository.Delete(hex)
 	if err != nil {
 		panic(err)
 	}
 	ctx.Status(http.StatusNoContent)
+}
+func NewProfileHandler() ProfileHandlerImpl {
+	return ProfileHandlerImpl{
+		profileRepository: repository.NewProfileRepository(),
+	}
 }
