@@ -32,6 +32,7 @@ func (u UserHandlerImpl) CreateUser(context *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
+	createdUser.Password = ""
 	context.JSON(http.StatusCreated, createdUser)
 }
 
@@ -80,6 +81,7 @@ func (u UserHandlerImpl) UpdateUser(context *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
+	updatedUser.Password = ""
 	context.JSON(http.StatusOK, updatedUser)
 }
 
@@ -94,6 +96,7 @@ func (u UserHandlerImpl) GetUser(context *gin.Context) {
 	if err != nil {
 		context.JSON(err.(http_error.HttpError).Status, err)
 	} else {
+		user.Password = ""
 		context.JSON(http.StatusOK, user)
 	}
 }

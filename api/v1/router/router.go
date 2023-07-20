@@ -31,10 +31,10 @@ func (r GinImpl) CreateRouter() *gin.Engine {
 	{
 		userRoutes := v1Routes.Group("/user")
 		{
-			userRoutes.POST("", r.userHandler.CreateUser)
-			userRoutes.DELETE("/:id", r.userHandler.DeleteUser)
-			userRoutes.PUT("/:id", r.userHandler.UpdateUser)
-			userRoutes.GET("/:id", r.userHandler.GetUser)
+			userRoutes.POST("", handlers.CheckPermission("CREATE_USERS"), r.userHandler.CreateUser)
+			userRoutes.DELETE("/:id", handlers.CheckPermission("DELETE_USERS"), r.userHandler.DeleteUser)
+			userRoutes.PUT("/:id", handlers.CheckPermission("UPDATE_USERS"), r.userHandler.UpdateUser)
+			userRoutes.GET("/:id", handlers.CheckPermission("GET_USERS"), r.userHandler.GetUser)
 		}
 		tokenRoutes := v1Routes.Group("/token")
 		{
@@ -43,11 +43,11 @@ func (r GinImpl) CreateRouter() *gin.Engine {
 		}
 		profileRoutes := v1Routes.Group("/profile")
 		{
-			profileRoutes.POST("", r.profileHandler.CreateProfile)
-			profileRoutes.PUT("/:id", r.profileHandler.UpdateProfile)
-			profileRoutes.GET("/:id", r.profileHandler.GetProfile)
-			profileRoutes.GET("/name/:name", r.profileHandler.GetProfileByName)
-			profileRoutes.DELETE("/:id", r.profileHandler.DeleteProfile)
+			profileRoutes.POST("", handlers.CheckPermission("CREATE_PROFILES"), r.profileHandler.CreateProfile)
+			profileRoutes.PUT("/:id", handlers.CheckPermission("UPDATE_PROFILES"), r.profileHandler.UpdateProfile)
+			profileRoutes.GET("/:id", handlers.CheckPermission("GET_PROFILES"), r.profileHandler.GetProfile)
+			profileRoutes.GET("/name/:name", handlers.CheckPermission("GET_PROFILES"), r.profileHandler.GetProfileByName)
+			profileRoutes.DELETE("/:id", handlers.CheckPermission("DELETE_PROFILES"), r.profileHandler.DeleteProfile)
 		}
 	}
 	err := router.Run("localhost:" + config.GetProperty("SERVER_PORT"))

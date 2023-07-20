@@ -20,7 +20,6 @@ func (u UserRepositoryMongo) Create(user model.User) (model.User, error) {
 	user.Password, _ = u.passwordEncryptionService.HashPassword(user.Password)
 	user.ID = primitive.NewObjectID()
 	_, err := u.getCollection().InsertOne(context.TODO(), user)
-	user.Password = ""
 	return user, err
 }
 
@@ -31,14 +30,12 @@ func (u UserRepositoryMongo) Update(user model.User) (model.User, error) {
 	if updateResult != nil && updateResult.ModifiedCount == 0 {
 		return user, mongo.ErrNoDocuments
 	}
-	user.Password = ""
 	return user, err
 }
 
 func (u UserRepositoryMongo) Get(id primitive.ObjectID) (model.User, error) {
 	var user model.User
 	err := u.getCollection().FindOne(context.TODO(), bson.D{{"_id", id}}).Decode(&user)
-	user.Password = ""
 	return user, err
 }
 
