@@ -50,7 +50,7 @@ func (r GinImpl) CreateRouter() *gin.Engine {
 			profileRoutes.DELETE("/:id", handlers.CheckPermission("DELETE_PROFILES"), r.profileHandler.DeleteProfile)
 		}
 	}
-	err := router.Run("localhost:" + config.GetProperty("SERVER_PORT"))
+	err := router.Run(":" + config.GetProperty("SERVER_PORT"))
 	if err != nil {
 		log.Fatal(err)
 	}
