@@ -1,13 +1,14 @@
 package middleware
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/x/bsonx"
 	"net/http"
 	"oauth/locale"
+
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func ErrorMiddleware(c *gin.Context, err any) {
@@ -22,11 +23,18 @@ func ErrorMiddleware(c *gin.Context, err any) {
 	case mongo.WriteException:
 		fieldErrors := make([]gin.H, len(err.(mongo.WriteException).WriteErrors))
 		for i, writeError := range err.(mongo.WriteException).WriteErrors {
-			doc, err := bsonx.ReadDoc(writeError.Raw)
-			if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"message": err.(error).Error()})
+			var rawDoc bson.M
+			if err := bson.Unmarshal(writeError.Raw, &rawDoc); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 			}
-			duplicatedKey := doc[doc.IndexOf("keyValue")].Value.Document()[0].Key
+			keyValue, ok := rawDoc["keyValue"].(bson.M)
+			var duplicatedKey string
+			if ok {
+				for k := range keyValue {
+					duplicatedKey = k
+					break
+				}
+			}
 			fieldErrors[i] = gin.H{"message": locale.GetMessageLocaleFromRequest("Duplicated Key", c, map[string]string{
 				"key": duplicatedKey,
 			})}
