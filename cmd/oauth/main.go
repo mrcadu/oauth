@@ -2,7 +2,7 @@ package main
 
 import (
 	"oauth/api/v1/router"
-	"oauth/internal/model/datasource"
+	"oauth/cmd/datasource"
 	"oauth/locale"
 )
 

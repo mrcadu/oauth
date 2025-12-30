@@ -2,16 +2,17 @@ package repository
 
 import (
 	"context"
+	datasource2 "oauth/cmd/datasource"
+	"oauth/internal/model"
+	"oauth/internal/utils"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"oauth/internal/model"
-	"oauth/internal/model/datasource"
-	"oauth/internal/utils"
 )
 
 type UserRepositoryMongo struct {
-	datasource                datasource.MongoDatasource
+	datasource                datasource2.MongoDatasource
 	passwordEncryptionService utils.PasswordEncryption
 	profileRepositoryMongo    ProfileRepositoryMongo
 }
@@ -59,7 +60,7 @@ func (u UserRepositoryMongo) getCollection() *mongo.Collection {
 
 func NewUserRepository() UserRepositoryMongo {
 	return UserRepositoryMongo{
-		datasource:                datasource.GetMongoDatasource(),
+		datasource:                datasource2.GetMongoDatasource(),
 		passwordEncryptionService: utils.PasswordEncryptionImpl{},
 		profileRepositoryMongo:    NewProfileRepository(),
 	}

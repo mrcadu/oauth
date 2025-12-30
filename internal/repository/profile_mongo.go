@@ -2,15 +2,16 @@ package repository
 
 import (
 	"context"
+	datasource2 "oauth/cmd/datasource"
+	"oauth/internal/model"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"oauth/internal/model"
-	"oauth/internal/model/datasource"
 )
 
 type ProfileRepositoryMongo struct {
-	datasource datasource.MongoDatasource
+	datasource datasource2.MongoDatasource
 }
 
 func (p ProfileRepositoryMongo) Create(profile model.Profile) (model.Profile, error) {
@@ -49,6 +50,6 @@ func (p ProfileRepositoryMongo) getCollection() *mongo.Collection {
 
 func NewProfileRepository() ProfileRepositoryMongo {
 	return ProfileRepositoryMongo{
-		datasource: datasource.GetMongoDatasource(),
+		datasource: datasource2.GetMongoDatasource(),
 	}
 }
